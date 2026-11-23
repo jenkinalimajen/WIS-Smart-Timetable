@@ -1,0 +1,12 @@
+{
+  "projectId": "wis-smart-timetable",
+  "appId": "1:1055826862487:web:830f471850d0e8e09024d2",
+  "apiKey": "AIzaSyAX61U5-0Ftb5floz0kUFF__gIjmDtI5Ww",
+  "authDomain": "wis-smart-timetable.firebaseapp.com",
+  "firestoreDatabaseId": "(default)",
+  "storageBucket": "wis-smart-timetable.firebasestorage.app",
+  "messagingSenderId": "1055826862487",
+  "measurementId": "G-9LF2SPFTXN",
+  "oAuthClientId": "120252334790-oq7351i6bbabb556ntnb1ss0jdu4m5iu.apps.googleusercontent.com",
+  "recaptchaSiteKey": ""
+}

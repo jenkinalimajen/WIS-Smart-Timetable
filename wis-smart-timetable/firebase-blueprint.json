@@ -1,0 +1,157 @@
+{
+  "entities": {
+    "workspace": {
+      "title": "Workspace",
+      "description": "Timetable workspace data containing students, timetable entries, staff pool, LSA assignments, primary support rules, announcements, and schedule settings.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Workspace identifier",
+          "maxLength": 64
+        },
+        "students": {
+          "type": "array",
+          "description": "List of student names enrolled in the timetable"
+        },
+        "entries": {
+          "type": "array",
+          "description": "All scheduled timetable lessons and withdrawal sessions"
+        },
+        "lsaPool": {
+          "type": "array",
+          "description": "All available Learning Support Assistants and SEND staff members with optional email and designation (LSA or SEND)"
+        },
+        "lsaAssignments": {
+          "type": "array",
+          "description": "Secondary lesson-specific LSA assignments"
+        },
+        "primarySupport": {
+          "type": "array",
+          "description": "Primary support allocations by student and subject"
+        },
+        "settings": {
+          "type": "object",
+          "description": "Workspace configuration including admin passcode"
+        },
+        "announcements": {
+          "type": "array",
+          "description": "Bulletin board messages"
+        },
+        "staffNotes": {
+          "type": "array",
+          "description": "Daily reminders, highlights, and cover assignments for staff schedule slots"
+        },
+        "schedule": {
+          "type": "object",
+          "description": "Slot duration and label overrides"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "ISO timestamp of the most recent update"
+        },
+        "updatedBy": {
+          "type": "string",
+          "description": "Email or user ID of the editor",
+          "maxLength": 256
+        }
+      },
+      "required": ["students", "entries", "lsaPool", "updatedAt"]
+    },
+    "admin": {
+      "title": "Admin",
+      "description": "Authorized administrator record.",
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string",
+          "description": "Admin email address",
+          "maxLength": 256
+        },
+        "role": {
+          "type": "string",
+          "description": "User role",
+          "maxLength": 32
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Creation timestamp"
+        }
+      },
+      "required": ["email", "role"]
+    },
+    "allowed_user": {
+      "title": "AllowedUser",
+      "description": "Email allowlist and staff timetable access record managed by administrators.",
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string",
+          "description": "Normalized lowercase Google email address",
+          "maxLength": 256
+        },
+        "staffName": {
+          "type": "string",
+          "description": "Linked staff member name from the Staff Roster if registered",
+          "maxLength": 128
+        },
+        "role": {
+          "type": "string",
+          "description": "User role (staff or admin)",
+          "enum": ["staff", "admin"],
+          "maxLength": 32
+        },
+        "canViewTimetable": {
+          "type": "boolean",
+          "description": "True if the user is registered in Staff Roster and can view the timetable"
+        },
+        "addedBy": {
+          "type": "string",
+          "description": "Email of the admin who added this record",
+          "maxLength": 256
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "ISO timestamp of the most recent update",
+          "maxLength": 64
+        }
+      },
+      "required": ["email", "role", "canViewTimetable", "updatedAt"]
+    },
+    "test_connection": {
+      "title": "TestConnection",
+      "description": "System healthcheck document to verify client connectivity with Firestore.",
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string",
+          "description": "Status string",
+          "maxLength": 32
+        },
+        "timestamp": {
+          "type": "string",
+          "description": "Timestamp"
+        }
+      },
+      "required": ["status"]
+    }
+  },
+  "firestore": {
+    "/workspaces/{workspaceId}": {
+      "schema": "workspace",
+      "description": "Collection of departmental timetable workspaces."
+    },
+    "/allowedUsers/{emailKey}": {
+      "schema": "allowed_user",
+      "description": "Allowlisted Google email addresses and staff timetable visibility permissions."
+    },
+    "/admins/{adminId}": {
+      "schema": "admin",
+      "description": "Collection of verified administrator records."
+    },
+    "/test/{testId}": {
+      "schema": "test_connection",
+      "description": "Connection verification documents."
+    }
+  }
+}

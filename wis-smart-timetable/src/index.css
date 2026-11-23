@@ -1,0 +1,374 @@
+@import "tailwindcss";
+
+:root {
+  --ink: #1C2333;
+  --ink-soft: #4A5268;
+  --canvas: #F5F6F8;
+  --panel: #FFFFFF;
+  --border: #DCDFE4;
+  --border-soft: #EAECEF;
+  --accent: #2F6F4E;
+  --accent-soft: #E4F0EA;
+  --lsa: #6C4C8C;
+  --lsa-soft: #EFE8F5;
+  --warn: #B23A31;
+  --warn-soft: #FBE6E4;
+  --amber: #8A6410;
+  --amber-soft: #FBF1DC;
+  --withdrawal: #2A6FA8;
+  --withdrawal-soft: #DCEEFB;
+}
+
+body {
+  background-color: var(--canvas);
+  color: var(--ink);
+  font-family: 'IBM Plex Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 14px;
+  -webkit-font-smoothing: antialiased;
+}
+
+.font-mono {
+  font-family: 'IBM Plex Mono', monospace;
+}
+
+/* Striped background for registration/break/tutor time periods */
+.bg-fixed-slot {
+  background-color: #ffffff;
+  background-image: repeating-linear-gradient(135deg, #ffffff, #ffffff 6px, #e2e8f0 6px, #e2e8f0 12px);
+}
+
+.bg-fixed-slot-alt {
+  background-color: #f4f6f9;
+  background-image: repeating-linear-gradient(135deg, #f4f6f9, #f4f6f9 6px, #e2e8f0 6px, #e2e8f0 12px);
+}
+
+.bg-fixed-withdrawal {
+  background-color: #DCEEFB;
+  background-image: repeating-linear-gradient(135deg, #DCEEFB, #DCEEFB 6px, #c9e2f5 6px, #c9e2f5 12px);
+}
+
+@keyframes blinkPulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.25;
+  }
+}
+
+.blink-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #B23A31;
+  margin-right: 7px;
+  vertical-align: middle;
+  animation: blinkPulse 1.4s ease-in-out infinite;
+}
+
+/* Frozen Column 1 persistent divider line on horizontal scroll */
+.freeze-col-header {
+  position: sticky !important;
+  left: 0 !important;
+  z-index: 20 !important;
+  background-clip: padding-box !important;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+}
+
+.freeze-col-cell {
+  position: sticky !important;
+  left: 0 !important;
+  z-index: 10 !important;
+  background-clip: padding-box !important;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+}
+
+/* Fluid hardware-accelerated timetable container */
+.timetable-scroll-container {
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-x pan-y;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  will-change: scroll-position;
+}
+.timetable-scroll-container::-webkit-scrollbar {
+  display: none;
+}
+
+/* Frozen bottom part of the timetable (Side Scroll & Legend) */
+.freeze-timetable-bottom {
+  position: sticky !important;
+  bottom: 0 !important;
+  z-index: 30 !important;
+}
+
+/* Custom minimalist styling for frozen side scrollbar */
+.frozen-side-scrollbar::-webkit-scrollbar {
+  height: 6px;
+}
+.frozen-side-scrollbar::-webkit-scrollbar-track {
+  background: #E2E8F0;
+  border-radius: 9999px;
+}
+.frozen-side-scrollbar::-webkit-scrollbar-thumb {
+  background: #94A3B8;
+  border-radius: 9999px;
+}
+.frozen-side-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #64748B;
+}
+.frozen-side-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #94A3B8 #E2E8F0;
+}
+
+#timetable-print-mount {
+  display: none;
+}
+
+@media print {
+  body.printing-timetable-doc > *:not(#timetable-print-mount) {
+    display: none !important;
+  }
+  body.printing-timetable-doc > #timetable-print-mount {
+    display: block !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #ffffff !important;
+  }
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+    font-size: 11px !important;
+  }
+  .bg-fixed-slot {
+    background-color: #ffffff !important;
+    background-image: repeating-linear-gradient(135deg, #ffffff, #ffffff 6px, #e2e8f0 6px, #e2e8f0 12px) !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  .bg-fixed-slot-alt {
+    background-color: #f4f6f9 !important;
+    background-image: repeating-linear-gradient(135deg, #f4f6f9, #f4f6f9 6px, #e2e8f0 6px, #e2e8f0 12px) !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  .bg-fixed-withdrawal {
+    background-color: #DCEEFB !important;
+    background-image: repeating-linear-gradient(135deg, #DCEEFB, #DCEEFB 6px, #c9e2f5 6px, #c9e2f5 12px) !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  .blink-dot {
+    animation: none !important;
+  }
+  header,
+  nav,
+  aside,
+  button,
+  input,
+  select,
+  .no-print,
+  .fixed.inset-0,
+  [role="dialog"] {
+    display: none !important;
+  }
+  main {
+    padding: 0 !important;
+    margin: 0 !important;
+    max-width: 100% !important;
+  }
+  .overflow-x-auto {
+    overflow: visible !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+  table {
+    width: 100% !important;
+    max-width: 100% !important;
+    table-layout: fixed !important;
+    font-size: 9px !important;
+    border-collapse: collapse !important;
+    page-break-inside: auto;
+  }
+  tr {
+    page-break-inside: avoid;
+    page-break-after: auto;
+  }
+  thead {
+    display: table-header-group;
+  }
+  th, td {
+    min-width: 0 !important;
+    white-space: normal !important;
+    word-break: break-word !important;
+    overflow-wrap: break-word !important;
+    border-color: #64748B !important;
+    border-width: 1px !important;
+    padding: 2.5px 3.5px !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  .freeze-col-header,
+  .freeze-col-cell {
+    position: static !important;
+    box-shadow: none !important;
+  }
+  @page {
+    margin: 6mm;
+    size: landscape;
+  }
+
+  /* Prevent header / first row expansion when printing */
+  thead tr,
+  .individual-timetable-grid thead tr,
+  .all-schedule-timetable-grid thead tr {
+    height: 7.5mm !important;
+    max-height: 8mm !important;
+  }
+  thead th,
+  .individual-timetable-grid thead th,
+  .all-schedule-timetable-grid thead th {
+    height: 7.5mm !important;
+    max-height: 8mm !important;
+    padding: 2px 2px !important;
+    white-space: normal !important;
+  }
+
+  /* Individual timetable print adjustments: strictly fit onto 1 single page */
+  .individual-timetable-grid {
+    width: 100% !important;
+    max-width: 100% !important;
+    table-layout: fixed !important;
+    page-break-inside: avoid !important;
+    page-break-after: avoid !important;
+  }
+  .individual-timetable-grid tbody tr {
+    height: 24mm !important;
+    max-height: 27mm !important;
+    page-break-inside: avoid !important;
+  }
+  .individual-timetable-grid td {
+    padding: 2.5px 3.5px !important;
+    height: 24mm !important;
+    max-height: 27mm !important;
+    vertical-align: top !important;
+    white-space: normal !important;
+    word-break: break-word !important;
+    overflow-wrap: break-word !important;
+  }
+  .individual-timetable-grid th.freeze-col-header,
+  .individual-timetable-grid td.freeze-col-cell {
+    width: 8.5% !important;
+    min-width: 0 !important;
+    max-width: 9.5% !important;
+    text-align: center !important;
+    vertical-align: middle !important;
+    font-size: 10px !important;
+    font-weight: 700 !important;
+  }
+  .individual-timetable-grid thead th:not(.freeze-col-header),
+  .individual-timetable-grid tbody th:not(.freeze-col-header) {
+    background-color: #FFEDD5 !important;
+    color: #0F172A !important;
+  }
+  .individual-timetable-grid thead th.freeze-col-header,
+  .individual-timetable-grid tbody th.freeze-col-header {
+    background-color: #D8E2EF !important;
+    color: #0F172A !important;
+  }
+  .individual-timetable-grid td.freeze-col-cell {
+    background-color: #D8E2EF !important;
+    color: #0F172A !important;
+  }
+
+  /* All Students and All Staff timetable print adjustments: compress columns to fit the paper and divide into pages cleanly */
+  .all-schedule-timetable-grid {
+    page-break-inside: auto !important;
+    break-inside: auto !important;
+    table-layout: fixed !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+  .all-schedule-timetable-grid thead {
+    display: table-header-group !important;
+  }
+  .all-schedule-timetable-grid thead th {
+    min-width: 0 !important;
+    max-width: none !important;
+    padding: 1.5px 1.5px !important;
+    font-size: 7pt !important;
+    word-break: break-word !important;
+    overflow-wrap: break-word !important;
+    overflow: hidden !important;
+    line-height: 1.15 !important;
+    text-align: center !important;
+  }
+  .all-schedule-timetable-grid thead th span {
+    font-size: 5.8pt !important;
+    line-height: 1.1 !important;
+  }
+  .all-schedule-timetable-grid tbody tr {
+    min-height: 20mm !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    page-break-after: auto !important;
+    break-after: auto !important;
+  }
+  .all-schedule-timetable-grid td {
+    padding: 2px 2.5px !important;
+    min-height: 20mm !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    word-break: break-word !important;
+    overflow-wrap: break-word !important;
+    font-size: 7.2pt !important;
+    line-height: 1.15 !important;
+  }
+  .all-schedule-timetable-grid th.freeze-col-header,
+  .all-schedule-timetable-grid td.freeze-col-cell {
+    width: 9.5% !important;
+    min-width: 0 !important;
+    max-width: 10% !important;
+    text-align: center !important;
+    vertical-align: middle !important;
+    font-size: 8pt !important;
+    font-weight: 700 !important;
+    padding: 1.5px 2px !important;
+    word-break: break-word !important;
+    overflow-wrap: break-word !important;
+    line-height: 1.2 !important;
+  }
+  .all-schedule-timetable-grid td.freeze-col-cell span {
+    font-size: 8pt !important;
+  }
+}
+
+/* Fit to Screen mode - strictly forces tables to 100% screen width without horizontal overflow */
+.timetable-fit-screen {
+  table-layout: fixed !important;
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+.timetable-fit-screen th,
+.timetable-fit-screen td {
+  min-width: 0 !important;
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+.timetable-fit-screen th.freeze-col-header,
+.timetable-fit-screen td.freeze-col-cell {
+  white-space: normal !important;
+  word-break: break-word !important;
+  overflow-wrap: break-word !important;
+}

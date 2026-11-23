@@ -1,0 +1,8 @@
+{
+  "name": "WIS Smart Timetable",
+  "description": "SEN and LSA scheduling timetable system with conflict detection, student and staff views, period splitting/merging, and timetable exports.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

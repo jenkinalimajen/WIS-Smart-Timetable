@@ -1,0 +1,107 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Global Safety Net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function isValidEmailKey(id) {
+      return id is string &&
+             id.size() >= 3 &&
+             id.size() <= 256 &&
+             id.matches('^[a-z0-9._%+\\-]+@[a-z0-9.\\-]+\\.[a-z]{2,}$') &&
+             !id.matches('.*\\.\\..*');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isVerifiedUser() {
+      return isSignedIn() &&
+             request.auth.token.email is string &&
+             request.auth.token.email_verified == true;
+    }
+
+    function userEmailLower() {
+      return request.auth.token.email.lower();
+    }
+
+    function isAdmin() {
+      return isVerifiedUser() && (
+        userEmailLower() == 'j.alimajen_wis@gemswis.com' ||
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid)) ||
+        (exists(/databases/$(database)/documents/allowedUsers/$(userEmailLower())) &&
+         get(/databases/$(database)/documents/allowedUsers/$(userEmailLower())).data.role == 'admin')
+      );
+    }
+
+    function isRegisteredStaff() {
+      return isVerifiedUser() &&
+             exists(/databases/$(database)/documents/allowedUsers/$(userEmailLower())) &&
+             get(/databases/$(database)/documents/allowedUsers/$(userEmailLower())).data.canViewTimetable == true;
+    }
+
+    function isValidWorkspace(data) {
+      return data.keys().hasAll(['students', 'entries', 'lsaPool', 'updatedAt']) &&
+             (data.students is list && data.students.size() <= 10000) &&
+             (data.entries is list && data.entries.size() <= 50000) &&
+             (data.lsaPool is list && data.lsaPool.size() <= 2000) &&
+             (data.updatedAt is string && data.updatedAt.size() <= 64) &&
+             (!('updatedBy' in data) || (data.updatedBy is string && data.updatedBy.size() <= 256));
+    }
+
+    function isValidAllowedUser(data, emailKey) {
+      return data.keys().hasAll(['email', 'role', 'canViewTimetable', 'updatedAt']) &&
+             data.keys().hasOnly(['email', 'staffName', 'role', 'canViewTimetable', 'addedBy', 'updatedAt']) &&
+             data.email is string &&
+             data.email.size() >= 3 &&
+             data.email.size() <= 256 &&
+             data.email.lower() == emailKey &&
+             data.role in ['staff', 'admin'] &&
+             data.canViewTimetable is bool &&
+             data.updatedAt is string &&
+             data.updatedAt.size() <= 64 &&
+             (!('staffName' in data) || (data.staffName is string && data.staffName.size() <= 128)) &&
+             (!('addedBy' in data) || (data.addedBy is string && data.addedBy.size() <= 256));
+    }
+
+    match /workspaces/{workspaceId} {
+      allow get: if isValidId(workspaceId) && (isAdmin() || isRegisteredStaff());
+      allow list: if isAdmin();
+      allow create, update: if isValidId(workspaceId) && isAdmin() && isValidWorkspace(incoming());
+      allow delete: if isValidId(workspaceId) && isAdmin();
+    }
+
+    match /allowedUsers/{emailKey} {
+      allow get: if isValidEmailKey(emailKey) && (
+        isAdmin() ||
+        (isVerifiedUser() && emailKey == userEmailLower())
+      );
+      allow list: if isAdmin();
+      allow create, update: if isValidEmailKey(emailKey) && isAdmin() && isValidAllowedUser(incoming(), emailKey);
+      allow delete: if isValidEmailKey(emailKey) && isAdmin();
+    }
+
+    match /admins/{adminId} {
+      allow get: if isSignedIn() && isValidId(adminId) && (adminId == request.auth.uid || isAdmin());
+      allow list: if isAdmin();
+      allow write: if isAdmin() && isValidId(adminId);
+    }
+
+    match /test/{testId} {
+      allow read: if isValidId(testId);
+      allow write: if isAdmin() && isValidId(testId);
+    }
+  }
+}
